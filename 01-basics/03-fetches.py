@@ -1,4 +1,3 @@
-import numpy as np
 import tensorflow as tf
 
 # Creating some things
@@ -14,10 +13,7 @@ e = tf.multiply(a, b)
 f = a + c
 g = e * c
 
-# Time to run the graph
-sess = tf.Session()
-eval_f = sess.run(f)
-eval_g = sess.run(g)
-sess.close()
-
-print('f = {fval}\ng = {gval}'.format(fval = eval_f, gval = eval_g))
+with tf.Session() as sess:
+    fetches = [a,b,c,d,e,f, g]
+    outs = sess.run(fetches)
+    print("fetches = {}".format(outs))
