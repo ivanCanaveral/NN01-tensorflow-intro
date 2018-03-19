@@ -36,4 +36,44 @@ Removing some nodes.
   * layer: a layer to dropout nodes from
   * keep_prob: probability of keep the node in the layer. 1.0 = no dropout
 
-### notes
+## docs
+
+#### tf.truncated_normal
+
+```python
+tf.truncated_normal(
+    shape,
+    mean=0.0,
+    stddev=1.0,
+    dtype=tf.float32,
+    seed=None,
+    name=None
+)
+```
+
+#### tf.Variable
+
+Creates a new variable with value initial_value.
+
+The new variable is added to the graph collections listed in `collections`, which defaults to `[GraphKeys.GLOBAL_VARIABLES]`.
+
+If `trainable` is `True` the variable is also added to the graph collection `GraphKeys.TRAINABLE_VARIABLES`.
+
+This constructor creates both a `variable` Op and an `assign` Op to set the variable to its initial value.
+
+```python
+
+__init__(
+    initial_value=None,
+    trainable=True,
+    collections=None,
+    validate_shape=True,
+    caching_device=None,
+    name=None,
+    variable_def=None,
+    dtype=None,
+    expected_shape=None,
+    import_scope=None,
+    constraint=None
+)
+´´´
