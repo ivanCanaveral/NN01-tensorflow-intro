@@ -14,6 +14,6 @@ f = a + c
 g = e * c
 
 with tf.Session() as sess:
-    fetches = [a,b,c,d,e,f, g]
+    fetches = [a,b,c,d,e,f,g]
     outs = sess.run(fetches)
     print("fetches = {}".format(outs))
