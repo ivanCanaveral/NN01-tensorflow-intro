@@ -2,14 +2,14 @@ import tensorflow as tf
 import numpy as np
 import pandas as pd
 
-dataframe = pd.read_csv('../data/iris_test.csv')
+####dataframe = pd.read_csv('../data/iris_test.csv')
 
 # to create a dataset we need features (values), labels, and a batch size
 # lets extract all the values from a dataset of pandas
 # and generate a Dataset of tensorflow from tensor slices,
 # that stores each element of the np.array of the values
-iris_ds = tf.data.Dataset.from_tensor_slices(dataframe.values)
-print('Only with values, we get a set of elements: \n', iris_ds)
+####iris_ds = tf.data.Dataset.from_tensor_slices(dataframe.values)
+####print('Only with values, we get a set of elements: \n', iris_ds)
 # >>> <TensorSliceDataset shapes: (5,), types: tf.float64>
 # collection of arrays of len 5
 
@@ -52,16 +52,22 @@ print('From a generator: \n', ds)
 #   we have four types of iterators:
 print('\n__Iterators__')
 #    - one_shot_iterator
+## Iterador normalito.
+## No hay que inicializar nada al comenzar la sesión.
 print('__one_shot_iterator')
 features = np.random.sample((100,2))
 ds = tf.data.Dataset.from_tensor_slices(features)
 itr = ds.make_one_shot_iterator()
 e = itr.get_next()
 with tf.Session() as sess:
-    print(sess.run(e))
+    for _ in range(10):
+        print(sess.run(e))
 
+print('\n')
 print('__initializable_iterator') # useful for use the same iterator in the train
-# an after that, for the test
+# and after that, for the test
+## Iterador "vacío", donde podemos ir enchufando dataset distintos.
+## Hay que inicializarlo cuando comienza la sesión.
 x = tf.placeholder(tf.float32, shape=[None, 2])
 ds = tf.data.Dataset.from_tensor_slices(x)
 
@@ -92,8 +98,11 @@ with tf.Session() as sess:
     print(sess.run([features, labels]))
 """
 
+print('\n')
 print('__reinitiable_iterator') # The concept is similar to before, we want to
 # dynamic switch between data. But instead of feed new data to the same dataset, we switch dataset.
+## Este es como un "molde" para crear iteradores con una estructura concretaself.
+## hay que inicializarlo cuando comienza la sesión.
 train_data = (np.random.sample((100,2)), np.random.sample((100,1)))
 test_data = (np.random.sample((10,2)), np.random.sample((10,1)))
 # creating both datasets
