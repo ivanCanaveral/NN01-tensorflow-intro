@@ -40,17 +40,24 @@ print(dataset.output_shapes)  # ==> "{'a': (), 'b': (100,)}"
 """
 map, flat_map & filter
 """
-### MAP
-benchmark_data_a = np.random.sample((1000000,10))
-benchmark_data_b = np.random.sample((1000000,10))
-benchmark_dataset = tf.data.Dataset.from_tensor_slices((benchmark_data_a, benchmark_data_b))
+### map
+x = np.random.sample((100,2))
+ds = tf.data.Dataset.from_tensor_slices(x)
+ds = ds.map(lambda x: x + 10)
+itr = ds.make_one_shot_iterator()
+e = itr.get_next()
 
-for i in range(4):
-    t0 = time()
-    b = benchmark_dataset.map(lambda x, y: ((x**2)+ x/2, y**5), num_parallel_calls=i*10)
-    itr = b.make_one_shot_iterator()
-    e = itr.get_next()
-    with tf.Session() as sess:
-        for j in range(1000000):
-            a = e
-    print("time spend with {i} threads: {t} s".format(i=i, t=time() - t0))
+with tf.Session() as sess:
+    for _ in range(10):
+        print(sess.run(e))
+
+### filter
+x = np.random.sample((100, 2))
+ds = tf.data.Dataset.from_tensor_slices(x)
+ds = ds.filter(lambda x: x[0] < 0.5)
+itr = ds.make_one_shot_iterator()
+e = itr.get_next()
+
+with tf.Session() as sess:
+    for _ in range(10):
+        print(sess.run(e))
