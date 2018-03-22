@@ -39,11 +39,18 @@ print(dataset.output_shapes)  # ==> "{'a': (), 'b': (100,)}"
 
 """
 map, flat_map & filter
+
+dataset1 = dataset1.map(lambda x: ...)
+
+dataset2 = dataset2.flat_map(lambda x, y: ...)
+
+# Note: Argument destructuring is not available in Python 3.
+dataset3 = dataset3.filter(lambda x, (y, z): ...)
 """
 ### map
 x = np.random.sample((100,2))
 ds = tf.data.Dataset.from_tensor_slices(x)
-ds = ds.map(lambda x: x + 10)
+ds = ds.map(lambda x: x + 10, num_parallel_calls=None)
 itr = ds.make_one_shot_iterator()
 e = itr.get_next()
 
@@ -61,3 +68,61 @@ e = itr.get_next()
 with tf.Session() as sess:
     for _ in range(10):
         print(sess.run(e))
+
+"""
+Extracting values from iterators
+
+If the iterator reaches the end of the dataset, executing the Iterator.get_next()
+operation will raise a tf.errors.OutOfRangeError. After this point the iterator
+will be in an unusable state, and you must initialize it again if you want to
+use it further.
+"""
+print('[How to extract tensors from a iterator]')
+
+## Range Creates a Dataset of a step-separated range of values.
+#Dataset.range(5) == [0, 1, 2, 3, 4]
+#Dataset.range(2, 5) == [2, 3, 4]
+#Dataset.range(1, 5, 2) == [1, 3]
+#Dataset.range(1, 5, -2) == []
+#Dataset.range(5, 1) == []
+#Dataset.range(5, 1, -2) == [5, 3]
+## ------
+dataset = tf.data.Dataset.range(5)
+iterator = dataset.make_initializable_iterator()
+next_element = iterator.get_next()
+
+with tf.Session() as sess:
+    sess.run(iterator.initializer) # Si se crea desde un placeholder, necesitará feed_dict
+                                   # en otro caso no.
+    for _ in range(8):
+        try:
+            print(sess.run(next_element))
+        except tf.errors.OutOfRangeError:
+            print('Sacabó!')
+
+    # if we want to reuse the iterator, we have to initialise it again!
+    sess.run(iterator.initializer)
+    while True:
+        try:
+            print(sess.run(next_element))
+        except tf.errors.OutOfRangeError:
+            print('Sacabó!!')
+            break
+
+""" (!) Iterator that returns several tensors """
+dataset1 = tf.data.Dataset.from_tensor_slices(tf.range(5))
+dataset2 = tf.data.Dataset.from_tensor_slices((tf.range(5), tf.range(5)))
+dataset3 = tf.data.Dataset.zip((dataset1, dataset2))
+
+iterator = dataset3.make_initializable_iterator()
+
+element1, (element2, element3) = iterator.get_next()
+
+# Note that evaluating any of next1, next2, or next3 will advance the iterator
+# for all components. A typical consumer of an iterator will include all
+# components in a single expression.
+with tf.Session() as sess:
+    sess.run(iterator.initializer)
+    print(sess.run(element1))
+    print(sess.run(element1))
+    print(sess.run([element1, element2, element3]))
