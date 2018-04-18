@@ -2,7 +2,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
 
-DATA_DIR = './data'
+DATA_DIR = './samples'
 NUM_STEPS = 1000
 MINIBATCH_SIZE = 100
 
@@ -52,8 +52,9 @@ x_images = tf.reshape(x, [-1, 28, 28, 1])
 
 # First convolution.
 #   32 filters of 5x5.
+#   inputs:  [-1, 28, 28, 1]
 #   weights: [5, 5, 1, 32]
-#   output:  [-1, 28, 28, 32]
+#   output:  [-1, 28, 28, 32] Esto tiene que ver con los movimientos que pueden hacer los filtros
 conv1 = conv_layer(x_images, shape=[5, 5, 1, 32])
 conv1_pool = max_pool_2x2(conv1)
 
@@ -90,10 +91,28 @@ with tf.Session() as sess:
 
     for i in range(NUM_STEPS):
         batch = mnist.train.next_batch(50)
-        
+        #print(batch[0])
+        #print(batch[0])
         if i % 100 == 0:
             train_accuracy = sess.run(accuracy, feed_dict={
-                x: batch[0], y_: batch[1], keep_prob: 0.5
+                x: batch[0], y_: batch[1], keep_prob: 1.0
             })
 
-            print('step {}, trainning accuracy {}'.format(i, train_accuracy))
+            print('step {}, trainning accuracy {} %'.format(i, train_accuracy))
+
+        sess.run(train_step, feed_dict={x: batch[0], y_: batch[1], keep_prob: 0.5})
+
+    batch = mnist.train.next_batch(1)
+    #print(batch)
+    print(batch[1])
+    print(sess.run(y_conv, feed_dict={x:batch[0], keep_prob: 1}))
+
+    batch = mnist.train.next_batch(1)
+    print(batch[1])
+    print(sess.run(y_conv, feed_dict={x:batch[0], keep_prob: 1}))
+
+    X = mnist.test.images.reshape(10,1000,784)
+    Y = mnist.test.labels.reshape(10,1000,10)
+    test_accuracy = np.mean([sess.run(accuracy,feed_dict={x: X[i], y_: Y[i], keep_prob:1.0}) for i in range(10)])
+
+print('test accuracy: {}'.format(test_accuracy))
